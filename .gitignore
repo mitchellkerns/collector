@@ -1,0 +1,13 @@
+# Ignore log files
+*.log
+
+# Ignore test files
+test.csv
+targets.txt
+
+# Ignore pycache files
+*.pyc
+*.pyo
+
+# Ignore DB files
+*.db

@@ -8,7 +8,7 @@ def initialize_db():
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
 
-    # Create scan_results table
+    # Create the scan_results table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS scan_results (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -23,13 +23,47 @@ def initialize_db():
         )
     ''')
 
-    # Create query_results table
+    # Create the domains table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS domains (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            domain_name TEXT UNIQUE
+        )
+    ''')
+
+    # Create the dns_servers table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS dns_servers (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            ip_address TEXT UNIQUE
+        )
+    ''')
+
+    # Create the domain_controllers table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS domain_controllers (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            hostname TEXT,
+            ip_address TEXT,
+            UNIQUE(hostname, ip_address) ON CONFLICT IGNORE
+        )
+    ''')
+
+    # Create the query_results table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS query_results (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             query_type TEXT,
             query_timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
             result_data TEXT
+        )
+    ''')
+
+    # Create the smb_ns_hosts table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS smb_ns_hosts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            ip_address TEXT UNIQUE
         )
     ''')
 
@@ -81,3 +115,20 @@ def get_saved_query_results(query_type=None):
     results = cursor.fetchall()
     conn.close()
     return results
+
+def get_components():
+    """
+    Retrieves all components from the components table.
+
+    :return: A list of tuples containing component data.
+    """
+    conn = sqlite3.connect(DB_FILE)
+    cursor = conn.cursor()
+
+    cursor.execute('''
+        SELECT component, hostname, ip_address
+        FROM components
+    ''')
+    components = cursor.fetchall()
+    conn.close()
+    return components
